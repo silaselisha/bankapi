@@ -19,5 +19,8 @@ migratedown:
 sqlc:
 	sqlc generate
 
+test:
+	go test -v ./...
+
 .PHONY: docker createdb dropdb migrate migrateup migratedown sqlc
 
