@@ -22,5 +22,8 @@ sqlc:
 test:
 	go test -v ./...
 
-.PHONY: docker createdb dropdb migrate migrateup migratedown sqlc
+server:
+	go run main.go
+
+.PHONY: docker createdb dropdb migrate migrateup migratedown sqlc server
 
