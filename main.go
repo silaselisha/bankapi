@@ -4,19 +4,23 @@ import (
 	"database/sql"
 	"log"
 
+	_ "github.com/lib/pq"
 	"github.com/silaselisha/bank-api/api"
 	db "github.com/silaselisha/bank-api/db/sqlc"
-	_"github.com/lib/pq"
+	"github.com/silaselisha/bank-api/db/utils"
 )
 
-const (
-	driver_name = "postgres"
-	data_source = "postgresql://root:esilas@localhost:5431/jpmorgan?sslmode=disable"
-	address = "0.0.0.0:8080"
-)
 
 func main() {
-	conn, err := sql.Open(driver_name, data_source)
+	var err error
+	config, err := utils.LoadConfig(".")
+
+	if err != nil {
+		log.Fatal("Could not load ENV!\n", err)
+		return
+	}
+
+	conn, err := sql.Open(config.DBdriver, config.DBsource)
 	if err != nil {
 		log.Fatal("Cannot connect to database!")
 		return
@@ -25,7 +29,7 @@ func main() {
 	store := db.NewStore(conn)
 	server := api.NewServer(store)
 
-	err = server.Start(address)
+	err = server.Start(config.ServerAddress)
 	if err != nil {
 		log.Fatal("Cannot connect to database!")
 		return

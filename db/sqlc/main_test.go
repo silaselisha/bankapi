@@ -7,12 +7,9 @@ import (
 	"log"
 	"os"
 	"testing"
-	_"github.com/lib/pq"
-)
 
-const (
-	driver_name = "postgres"
-	data_source = "postgres://root:esilas@localhost:5431/jpmorgan?sslmode=disable"
+	_ "github.com/lib/pq"
+	"github.com/silaselisha/bank-api/db/utils"
 )
 
 var testQueries *Queries
@@ -20,7 +17,13 @@ var conn *sql.DB
 
 func TestMain(m *testing.M) {
 	var err error
-	conn, err = sql.Open(driver_name, data_source)
+	config, err := utils.LoadConfig("../..")
+
+	if err != nil {
+		log.Fatal("Could not load ENVs!\n", err)
+	}
+	
+	conn, err = sql.Open(config.DBdriver, config.DBsource)
 
 	if err != nil {
 		log.Fatal("database connection unsuccessfully!")
