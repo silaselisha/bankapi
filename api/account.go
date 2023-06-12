@@ -12,7 +12,7 @@ type createAccountParams struct {
 	FirstName string `json:"first_name" binding:"required"`
 	LastName  string `json:"last_name" binding:"required"`
 	Gender    string `json:"gender" binding:"required,oneof=male female"`
-	Currency  string `json:"currency" binding:"required,oneof=USD EUR CAD"`
+	Currency  string `json:"currency" binding:"required,currency"`
 }
 
 func (server *Server) createAccount(ctx *gin.Context) {
