@@ -11,9 +11,10 @@ import (
 )
 
 func createSingleAccount(t *testing.T) Account {
+	user := createSingleUser(t)
 	args := CreateAccountParams{
-		FirstName: utils.GenerateFirstName(),
-		LastName:  utils.GenerateLastName(),
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
 		Gender:    utils.GenerateGender(),
 		Balance:   utils.GenerateAmount(),
 		Currency:  utils.GenerateCurrency(),
