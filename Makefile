@@ -16,6 +16,12 @@ migrateup:
 migratedown:
 	migrate -path db/migration -database "postgres://root:esilas@localhost:5431/jpmorgan?sslmode=disable" -verbose down
 
+migrateupone: 
+	migrate -path db/migration -database "postgres://root:esilas@localhost:5431/jpmorgan?sslmode=disable" -verbose up 1
+
+migratedownone:
+	migrate -path db/migration -database "postgres://root:esilas@localhost:5431/jpmorgan?sslmode=disable" -verbose down 1
+
 sqlc:
 	sqlc generate
 
