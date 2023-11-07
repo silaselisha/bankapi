@@ -1,0 +1,9 @@
+DROP INDEX IF EXISTS owner;
+
+DROP INDEX IF EXISTS currency;
+
+DROP INDEX IF EXISTS account_id;
+
+DROP INDEX IF EXISTS from_account_id;
+
+DROP INDEX IF EXISTS to_account_id;

@@ -10,7 +10,7 @@ import (
 
 var testQueries *Queries
 func TestMain(m *testing.M) {
-	db, err := sql.Open("postgres", "postgres://postgres:esilas@localhost:5432/bankapi?sslmode=disable")
+	db, err := sql.Open("postgres", "postgres://root:esilas@localhost:5432/bankapi?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
