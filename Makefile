@@ -1,4 +1,13 @@
 create:
 	migrate create -ext sql -dir db/migrations -seq initial-schema
 
-.PHONY: create
+generate:
+	sqlc generate
+
+migrateup:
+	migrate -path db/migrations -database "postgres://postgres:esilas@localhost:5432/bankapi?sslmode=disable" -verbose up
+
+migratedown:
+	migrate -path db/migrations -database "postgres://postgres:esilas@localhst:5432/bankapi?sslmode=disable" -verbose down
+
+.PHONY: create generate migrateup
