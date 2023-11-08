@@ -8,7 +8,7 @@ import (
 var letters string = "abcdefghijklmnopqrstuvwxyz"
 
 func RandomAmount(min, max int) int {
-	return int(rand.Intn((max - min) + 1))
+	return min + int(rand.Intn((max - min) + 1))
 }
 
 func RandomCurrency() string {
