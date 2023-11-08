@@ -19,4 +19,7 @@ migrateup:
 migratedown:
 	migrate -path db/migrations -database "postgres://root:esilas@localhost:5432/bankapi?sslmode=disable" -verbose down 1
 
+gotest:
+	go test -v -cover ./...
+
 .PHONY: create generate postgres createdb dropdb migrateup migratedown

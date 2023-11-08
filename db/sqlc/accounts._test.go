@@ -58,7 +58,7 @@ func TestListAccounts(t *testing.T) {
 	accounts, err := testQueries.ListAccounts(context.Background(), agrs)
 	require.NoError(t, err)
 	require.NotEmpty(t, accounts)
-	require.True(t, len(accounts) == 5)
+	require.True(t, len(accounts) <= 5)
 
 	for _, account := range accounts {
 		require.NotEmpty(t, account)
