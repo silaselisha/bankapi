@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/silaselisha/bankapi/db/utils"
+	"github.com/silaselisha/bankapi/database/utils"
 	"github.com/stretchr/testify/require"
 )
 
@@ -28,11 +28,10 @@ func TestGetAccountById(t *testing.T) {
 	require.WithinDuration(t, test_account.CreatedAt, account.CreatedAt, time.Second)
 }
 
-
 func TestUpdateAccountBalance(t *testing.T) {
 	account := createRandomAccount(t)
-	args := UpdateAccountParams {
-		ID: account.ID,
+	args := UpdateAccountParams{
+		ID:      account.ID,
 		Balance: int32(utils.RandomAmount(10, 500)),
 	}
 
@@ -50,9 +49,9 @@ func TestListAccounts(t *testing.T) {
 		createRandomAccount(t)
 	}
 
-	agrs := ListAccountsParams {
+	agrs := ListAccountsParams{
 		Offset: 1,
-		Limit: 5,
+		Limit:  5,
 	}
 
 	accounts, err := testQueries.ListAccounts(context.Background(), agrs)

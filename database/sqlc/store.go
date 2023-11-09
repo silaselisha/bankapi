@@ -18,6 +18,8 @@ func NewStore(db *sql.DB) *Store {
 	}
 }
 
+var txKey struct{} = struct{}{}
+
 func (store *Store) execTx(ctx context.Context, fn func(*Queries) error) error {
 	tx, err := store.db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
@@ -57,6 +59,8 @@ func (store *Store) TransferTx(ctx context.Context, args TransferTxParams) (Tran
 	var results TransferTxResultsParams
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
+		value := ctx.Value(txKey)
+		fmt.Printf("create transfer: %v\n", value)
 		results.Transfer, err = q.CreateTransfer(ctx, CreateTransferParams{
 			FromAccountID: args.FromAccountId,
 			ToAccountID:   args.ToAccountId,
@@ -67,22 +71,83 @@ func (store *Store) TransferTx(ctx context.Context, args TransferTxParams) (Tran
 			return err
 		}
 
+		fmt.Printf("create entry 1: %v\n", value)
 		results.FromEntry, err = q.CreateEntry(ctx, CreateEntryParams{
 			AccountID: args.FromAccountId,
-			Amount:    sql.NullInt32{Int32: -args.Amount, Valid: true},
+			Amount: -args.Amount,
 		})
 
 		if err != nil {
 			return err
 		}
 
+		fmt.Printf("create entry 2: %v\n", value)
 		results.ToEntry, err = q.CreateEntry(ctx, CreateEntryParams{
 			AccountID: args.ToAccountId,
-			Amount: sql.NullInt32{Int32: args.Amount, Valid: true},
+			Amount: args.Amount,
 		})
 
 		if err != nil {
 			return err
+		}
+
+		if args.FromAccountId < args.ToAccountId {
+
+			fmt.Printf("update senders balance: %v\n", value)
+			account1, err := q.GetAccount(ctx, args.FromAccountId)
+			if err != nil {
+				return err
+			}
+	
+			results.FromAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
+				ID: account1.ID,
+				Balance: account1.Balance - args.Amount,
+			})
+			if err != nil {
+				return err
+			}
+	
+			fmt.Printf("update receiver balance: %v\n", value)
+			account2, err := q.GetAccount(ctx, args.ToAccountId)
+			if err != nil {
+				return err
+			}
+	
+			results.ToAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
+				ID: account2.ID,
+				Balance: account2.Balance + args.Amount,
+			})
+			if err != nil {
+				return err
+			}
+		} else {
+			fmt.Printf("update receiver balance: %v\n", value)
+			account2, err := q.GetAccount(ctx, args.ToAccountId)
+			if err != nil {
+				return err
+			}
+	
+			results.ToAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
+				ID: account2.ID,
+				Balance: account2.Balance + args.Amount,
+			})
+			if err != nil {
+				return err
+			}
+			
+			fmt.Printf("update senders balance: %v\n", value)
+			account1, err := q.GetAccount(ctx, args.FromAccountId)
+			if err != nil {
+				return err
+			}
+	
+			results.FromAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
+				ID: account1.ID,
+				Balance: account1.Balance - args.Amount,
+			})
+			if err != nil {
+				return err
+			}
 		}
 
 		return nil
