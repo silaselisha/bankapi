@@ -1,0 +1,1 @@
+ALTER TABLE entires ALTER COLUMN amount DROP NOT NULL;
