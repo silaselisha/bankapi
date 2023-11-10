@@ -92,7 +92,6 @@ func (store *Store) TransferTx(ctx context.Context, args TransferTxParams) (Tran
 		}
 
 		if args.FromAccountId < args.ToAccountId {
-
 			fmt.Printf("update senders balance: %v\n", value)
 			account1, err := q.GetAccount(ctx, args.FromAccountId)
 			if err != nil {

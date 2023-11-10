@@ -97,9 +97,6 @@ func TestTransferTx(t *testing.T) {
 		key := int(diff1 / amount)
 		require.NotContains(t, exists, key)
 		exists[key] = true
-
-		require.Equal(t, account1.Balance-(int32(iterations)*amount), fromAccount.Balance)
-		require.Equal(t, account2.Balance+(int32(iterations)*amount), toAccount.Balance)
 	}
 
 	fromAccount, err := store.GetAccount(context.Background(), account1.ID)
