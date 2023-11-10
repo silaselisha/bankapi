@@ -1,0 +1,36 @@
+name: cicd
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: esilas
+          POSTGRES_DB: bankapi
+          POSTGRES_USER: root
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: setting golang environment
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21.x"
+
+      - name: installing golang migrate
+        run: |
+          curl -L https://github.com/golang-migrate/migrate/releases/download/v4.16.2/migrate.linux-amd64.tar.gz | tar xvz
+          sudo mv migrate /usr/bin
+          which migrate
+
+      - name: run test
+        run: go test -v -cover ./...
