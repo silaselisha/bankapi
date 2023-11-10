@@ -14,7 +14,7 @@ dropdb:
 	docker exec -it postgres16 dropdb bankapi
 
 migrateup:
-	migrate -path database/migrations -database "postgres://root:esilas@localhost:5432/bankapi?sslmode=disable" -verbose up 1
+	migrate -path database/migrations -database "postgres://root:esilas@localhost:5432/bankapi?sslmode=disable" -verbose up 3
 
 migratedown:
 	migrate -path database/migrations -database "postgres://root:esilas@localhost:5432/bankapi?sslmode=disable" -verbose down 1

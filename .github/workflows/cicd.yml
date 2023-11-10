@@ -33,7 +33,7 @@ jobs:
           which migrate
 
       - name: run database migrations
-        run: migrate -path databse/migrations -database "postgres://root:esilas@localhost:5432/bankapi?sslmode=disable" -verbose up 3
+        run: make migrateup
 
       - name: run test
         run: go test -v -cover ./...
