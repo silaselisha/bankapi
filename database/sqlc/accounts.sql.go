@@ -3,7 +3,7 @@
 //   sqlc v1.18.0
 // source: accounts.sql
 
-package db
+package database
 
 import (
 	"context"
@@ -105,16 +105,16 @@ func (q *Queries) ListAccounts(ctx context.Context, arg ListAccountsParams) ([]A
 
 const updateAccount = `-- name: UpdateAccount :one
 
-UPDATE accounts set balance = $2 WHERE id = $1 RETURNING id, owner, balance, currency, created_at
+UPDATE accounts set balance = balance + $1 WHERE id = $2 RETURNING id, owner, balance, currency, created_at
 `
 
 type UpdateAccountParams struct {
-	ID      int64 `db:"id"`
-	Balance int32 `db:"balance"`
+	Amount int32 `db:"amount"`
+	ID     int64 `db:"id"`
 }
 
 func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error) {
-	row := q.db.QueryRowContext(ctx, updateAccount, arg.ID, arg.Balance)
+	row := q.db.QueryRowContext(ctx, updateAccount, arg.Amount, arg.ID)
 	var i Account
 	err := row.Scan(
 		&i.ID,

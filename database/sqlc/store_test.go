@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"context"
@@ -122,7 +122,7 @@ func TestTransferAlternateTx(t *testing.T) {
 		toAccountId := account2.ID
 		fromAccountId := account1.ID
 
-		if i % 2 == 1 {
+		if i%2 == 1 {
 			toAccountId = account1.ID
 			fromAccountId = account2.ID
 		}

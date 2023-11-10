@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"context"
@@ -32,7 +32,7 @@ func TestUpdateAccountBalance(t *testing.T) {
 	account := createRandomAccount(t)
 	args := UpdateAccountParams{
 		ID:      account.ID,
-		Balance: int32(utils.RandomAmount(10, 500)),
+		Amount: int32(utils.RandomAmount(10, 500)),
 	}
 
 	updatedAccount, err := testQueries.UpdateAccount(context.Background(), args)
@@ -40,7 +40,7 @@ func TestUpdateAccountBalance(t *testing.T) {
 	require.NotEmpty(t, updatedAccount)
 	require.Equal(t, account.ID, updatedAccount.ID)
 	require.Equal(t, account.Owner, updatedAccount.Owner)
-	require.Equal(t, args.Balance, updatedAccount.Balance)
+	require.Equal(t, args.Amount, updatedAccount.Balance)
 	require.WithinDuration(t, account.CreatedAt, updatedAccount.CreatedAt, time.Second)
 }
 
