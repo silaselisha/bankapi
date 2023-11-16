@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	database "github.com/silaselisha/bankapi/database/sqlc"
+	db "github.com/silaselisha/bankapi/database/sqlc"
 )
 
 type createAccountsParams struct {
@@ -20,7 +20,7 @@ func (s *Server) createAccounts(ctx *gin.Context) {
 		return
 	}
 
-	args := database.CreateAccountParams{
+	args := db.CreateAccountParams{
 		Owner:    req.Owner,
 		Currency: req.Currency,
 	}
@@ -49,4 +49,30 @@ func (s *Server) getAccountById(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusFound, account)
+}
+
+type listAccountsParams struct {
+	PageId   int64 `form:"page_id" binding:"required,min=1"`
+	PageSize int64 `form:"page_size" binding:"required,min=3,max=10"`
+}
+
+func (s *Server) getAllAccounts(ctx *gin.Context) {
+	var reqQuery listAccountsParams
+	if err := ctx.ShouldBindQuery(&reqQuery); err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	args := db.ListAccountsParams{
+		Limit:  int32(reqQuery.PageSize),
+		Offset: (int32(reqQuery.PageId) - 1) * int32(reqQuery.PageSize),
+	}
+
+	accounts, err := s.store.ListAccounts(ctx, args)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, accounts)
 }
