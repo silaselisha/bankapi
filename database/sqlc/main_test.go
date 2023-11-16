@@ -7,11 +7,7 @@ import (
 	"testing"
 
 	_ "github.com/lib/pq"
-)
-
-const (
-	DB_DRIVER = "postgres"
-	DB_SOURCE = "postgresql://root:esilas@localhost:5432/bankapi?sslmode=disable"
+	"github.com/silaselisha/bankapi/database/utils"
 )
 
 var testQueries *Queries
@@ -19,7 +15,11 @@ var conn *sql.DB
 
 func TestMain(m *testing.M) {
 	var err error
-	conn, err = sql.Open(DB_DRIVER, DB_SOURCE)
+	envs, err := utils.Load("../..")
+	if err != nil {
+		log.Fatal(err)
+	}
+	conn, err = sql.Open(envs.DBdriver,envs.DBsource)
 	// fmt.Printf("type: %T -> value: %v\n", conn, conn)
 	if err != nil {
 		log.Fatal(err)

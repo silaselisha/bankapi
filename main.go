@@ -6,22 +6,24 @@ import (
 
 	"github.com/silaselisha/bankapi/api"
 	db "github.com/silaselisha/bankapi/database/sqlc"
+	"github.com/silaselisha/bankapi/database/utils"
 
 	_ "github.com/lib/pq"
 )
 
-const (
-	ADDRESS   = ":8080"
-	DB_SOURCE = "postgresql://root:esilas@localhost:5432/bankapi?sslmode=disable"
-)
-
 func main() {
-	conn, err := sql.Open("postgres", DB_SOURCE)
+	var err error
+	envs, err := utils.Load(".")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	conn, err := sql.Open(envs.DBdriver, envs.DBsource)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	store := db.NewStore(conn)
 	server := api.NewServer(store)
-	server.Start(ADDRESS)
+	server.Start(envs.Address)
 }
