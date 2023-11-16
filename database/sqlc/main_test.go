@@ -13,13 +13,16 @@ import (
 var testQueries *Queries
 var conn *sql.DB
 
+// /home/esilas/builds/bankapi/database/sqlc/main_test.go
+
 func TestMain(m *testing.M) {
 	var err error
 	envs, err := utils.Load("../..")
+
 	if err != nil {
 		log.Fatal(err)
 	}
-	conn, err = sql.Open(envs.DBdriver,envs.DBsource)
+	conn, err = sql.Open(envs.DBdriver, envs.DBsource)
 	// fmt.Printf("type: %T -> value: %v\n", conn, conn)
 	if err != nil {
 		log.Fatal(err)
