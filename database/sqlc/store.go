@@ -6,13 +6,18 @@ import (
 	"fmt"
 )
 
-type Store struct {
+
+type Store interface {
+	Querier
+	TransferTx(ctx context.Context, args TransferTxParams) (TransferTxResultsParams, error)
+}
+type SQLstore struct {
 	*Queries
 	db *sql.DB
 }
 
-func NewStore(db *sql.DB) *Store {
-	return &Store{
+func NewStore(db *sql.DB) Store {
+	return &SQLstore{
 		Queries: New(db),
 		db:      db,
 	}
@@ -20,7 +25,7 @@ func NewStore(db *sql.DB) *Store {
 
 var txKey struct{} = struct{}{}
 
-func (store *Store) execTx(ctx context.Context, fn func(*Queries) error) error {
+func (store *SQLstore) execTx(ctx context.Context, fn func(*Queries) error) error {
 	tx, err := store.db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
 		if rlberr := tx.Rollback(); rlberr != nil {
@@ -55,7 +60,7 @@ type TransferTxResultsParams struct {
 	FromAccount Account  `json:"from_account"`
 }
 
-func (store *Store) TransferTx(ctx context.Context, args TransferTxParams) (TransferTxResultsParams, error) {
+func (store *SQLstore) TransferTx(ctx context.Context, args TransferTxParams) (TransferTxResultsParams, error) {
 	var results TransferTxResultsParams
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error

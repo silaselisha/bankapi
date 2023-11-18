@@ -1,8 +1,8 @@
 package api
 
 import (
+	"database/sql"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	db "github.com/silaselisha/bankapi/database/sqlc"
@@ -34,21 +34,28 @@ func (s *Server) createAccounts(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, account)
 }
 
+type accountIdParams struct {
+	Id int64 `uri:"id" binding:"required"`
+}
+
 func (s *Server) getAccountById(ctx *gin.Context) {
-	idStr := ctx.Param("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
+	var req accountIdParams
+	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	account, err := s.store.GetAccount(ctx, int64(id))
+	account, err := s.store.GetAccount(ctx, req.Id)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, errorResponse(err))
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
-	ctx.JSON(http.StatusFound, account)
+	ctx.JSON(http.StatusOK, account)
 }
 
 type listAccountsParams struct {
