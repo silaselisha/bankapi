@@ -1,5 +1,5 @@
 create:
-	migrate create -ext sql -dir database/migrations -seq indexing
+	migrate create -ext sql -dir db/migrations -seq indexing
 
 generate:
 	sqlc generate
@@ -14,10 +14,10 @@ dropdb:
 	docker exec -it postgres16 dropdb bankapi
 
 migrateup:
-	migrate -path database/migrations -database "postgres://root:esilas@localhost:5432/bankapi?sslmode=disable" -verbose up 3
+	migrate -path db/migrations -database "postgres://root:esilas@localhost:5432/bankapi?sslmode=disable" -verbose up 3
 
 migratedown:
-	migrate -path database/migrations -database "postgres://root:esilas@localhost:5432/bankapi?sslmode=disable" -verbose down 1
+	migrate -path db/migrations -database "postgres://root:esilas@localhost:5432/bankapi?sslmode=disable" -verbose down 1
 
 gotest:
 	go test -v -cover ./...
