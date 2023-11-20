@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	_ "github.com/lib/pq"
-	"github.com/silaselisha/bankapi/database/utils"
+	"github.com/silaselisha/bankapi/db/utils"
 )
 
 var testQueries *Queries

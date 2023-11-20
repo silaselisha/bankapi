@@ -11,9 +11,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
-	mockdb "github.com/silaselisha/bankapi/database/mock"
-	database "github.com/silaselisha/bankapi/database/sqlc"
-	"github.com/silaselisha/bankapi/database/utils"
+	mockdb "github.com/silaselisha/bankapi/db/mock"
+	database "github.com/silaselisha/bankapi/db/sqlc"
+	"github.com/silaselisha/bankapi/db/utils"
 	"github.com/stretchr/testify/require"
 )
 

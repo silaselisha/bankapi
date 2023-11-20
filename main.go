@@ -6,8 +6,8 @@ import (
 	"log"
 
 	"github.com/silaselisha/bankapi/api"
-	db "github.com/silaselisha/bankapi/database/sqlc"
-	"github.com/silaselisha/bankapi/database/utils"
+	db "github.com/silaselisha/bankapi/db/sqlc"
+	"github.com/silaselisha/bankapi/db/utils"
 
 	_ "github.com/lib/pq"
 )

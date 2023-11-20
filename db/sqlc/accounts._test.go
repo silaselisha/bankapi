@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/silaselisha/bankapi/database/utils"
+	"github.com/silaselisha/bankapi/db/utils"
 	"github.com/stretchr/testify/require"
 )
 

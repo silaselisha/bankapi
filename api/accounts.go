@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	db "github.com/silaselisha/bankapi/database/sqlc"
+	db "github.com/silaselisha/bankapi/db/sqlc"
 )
 
 type createAccountsParams struct {

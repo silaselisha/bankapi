@@ -11,9 +11,9 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	mockdb "github.com/silaselisha/bankapi/database/mock"
-	database "github.com/silaselisha/bankapi/database/sqlc"
-	"github.com/silaselisha/bankapi/database/utils"
+	mockdb "github.com/silaselisha/bankapi/db/mock"
+	db "github.com/silaselisha/bankapi/db/sqlc"
+	"github.com/silaselisha/bankapi/db/utils"
 	"github.com/stretchr/testify/require"
 )
 
@@ -40,7 +40,7 @@ func TestGetAccount(t *testing.T) {
 			name: "Not found",
 			id:   account.ID,
 			stub: func(store *mockdb.MockStore) {
-				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(account.ID)).Times(1).Return(database.Account{}, sql.ErrNoRows)
+				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(account.ID)).Times(1).Return(db.Account{}, sql.ErrNoRows)
 			},
 			check: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)
@@ -50,7 +50,7 @@ func TestGetAccount(t *testing.T) {
 			name: "Internal server error",
 			id:   account.ID,
 			stub: func(store *mockdb.MockStore) {
-				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(account.ID)).Times(1).Return(database.Account{}, sql.ErrConnDone)
+				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(account.ID)).Times(1).Return(db.Account{}, sql.ErrConnDone)
 			},
 			check: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusInternalServerError, recorder.Code)
@@ -87,12 +87,12 @@ func TestGetAccount(t *testing.T) {
 	}
 }
 
-func createRandomAccount(t *testing.T) database.Account {
+func createRandomAccount(t *testing.T) db.Account {
 	user, err := utils.RandomString(6)
 	require.NoError(t, err)
 	require.NotEmpty(t, user)
 
-	return database.Account{
+	return db.Account{
 		ID:       int64(utils.RandomAmount(1, 100)),
 		Owner:    user,
 		Balance:  int32(utils.RandomAmount(100, 1000)),
@@ -100,10 +100,10 @@ func createRandomAccount(t *testing.T) database.Account {
 	}
 }
 
-func checkBodyResponse(t *testing.T, body *bytes.Buffer, account database.Account) {
+func checkBodyResponse(t *testing.T, body *bytes.Buffer, account db.Account) {
 	data, err := io.ReadAll(body)
 	require.NoError(t, err)
-	var res database.Account
+	var res db.Account
 	err = json.Unmarshal(data, &res)
 	require.NoError(t, err)
 	require.Equal(t, account, res)
