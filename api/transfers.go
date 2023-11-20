@@ -23,12 +23,12 @@ func (s *Server) createTransfer(ctx *gin.Context) {
 		return
 	}
 
-	_, isValid := s.validateAccount(ctx, req.FromAccountId, req.Currency) 
+	_, isValid := s.validateAccount(ctx, req.FromAccountId, req.Currency)
 	if !isValid {
 		return
 	}
 
-	_, isValid = s.validateAccount(ctx, req.ToAccountId, req.Currency) 
+	_, isValid = s.validateAccount(ctx, req.ToAccountId, req.Currency)
 	if !isValid {
 		return
 	}
@@ -45,7 +45,6 @@ func (s *Server) createTransfer(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Println(s.validateAccount(ctx, req.FromAccountId, req.Currency))
 	ctx.JSON(http.StatusCreated, transfer)
 }
 
@@ -56,13 +55,13 @@ func (s *Server) validateAccount(ctx *gin.Context, id int64, currency string) (d
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
 			return db.Account{}, false
 		}
-	
+
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return db.Account{}, false
 	}
 
 	if account.Currency != currency {
-		fmt.Println("not equal")
+		err := fmt.Errorf("account [%d] currency mismatch: %s vs %s", account.ID, account.Currency, currency)
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return db.Account{}, false
 	}

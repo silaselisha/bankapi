@@ -28,6 +28,7 @@ func TestTransfers(t *testing.T) {
 		name string
 		body gin.H
 		stub func(store *mockdb.MockStore)
+		check func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name: "Ok",
@@ -41,7 +42,6 @@ func TestTransfers(t *testing.T) {
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(account2.ID)).Times(1).Return(account2, nil)
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(account1.ID)).Times(1).Return(account1, nil)
 
-
 				args := database.TransferTxParams{
 					FromAccountId: account1.ID,
 					ToAccountId:   account2.ID,
@@ -49,6 +49,9 @@ func TestTransfers(t *testing.T) {
 				}
 
 				store.EXPECT().TransferTx(gomock.Any(), gomock.Eq(args)).Times(1)
+			},
+			check: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusCreated, recorder.Code)
 			},
 		},
 	}
