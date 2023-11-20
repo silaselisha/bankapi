@@ -6,7 +6,6 @@ import (
 	"fmt"
 )
 
-
 type Store interface {
 	Querier
 	TransferTx(ctx context.Context, args TransferTxParams) (TransferTxResultsParams, error)
@@ -116,7 +115,7 @@ func (store *SQLstore) TransferTx(ctx context.Context, args TransferTxParams) (T
 		} else {
 			fmt.Printf("update receiver balance: %v\n", value)
 			results.ToAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
-				ID:      args.ToAccountId,
+				ID:     args.ToAccountId,
 				Amount: +args.Amount,
 			})
 			if err != nil {
@@ -125,14 +124,14 @@ func (store *SQLstore) TransferTx(ctx context.Context, args TransferTxParams) (T
 
 			fmt.Printf("update senders balance: %v\n", value)
 			results.FromAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
-				ID:      args.FromAccountId,
-				Amount:  -args.Amount,
+				ID:     args.FromAccountId,
+				Amount: -args.Amount,
 			})
 			if err != nil {
 				return err
 			}
 		}
-		
+
 		return nil
 	})
 

@@ -3,16 +3,17 @@ package utils
 import (
 	"math/rand"
 	"strings"
+	"github.com/go-playground/validator/v10"
 )
 
 var letters string = "abcdefghijklmnopqrstuvwxyz"
 
 func RandomAmount(min, max int) int {
-	return min + int(rand.Intn((max - min) + 1))
+	return min + int(rand.Intn((max-min)+1))
 }
 
 func RandomCurrency() string {
-	currency := []string{"USD", "EUR", "KSH", "GBP"}
+	currency := []string{"USD", "EUR", "GBP"}
 	return currency[rand.Intn(len(currency))]
 }
 
@@ -26,4 +27,29 @@ func RandomString(size int) (string, error) {
 		}
 	}
 	return sb.String(), nil
+}
+
+const (
+	USD = "USD"
+	EUR = "EUR"
+	GBP = "GBP"
+)
+
+func currencyValidator(curr string) bool {
+	switch curr {
+	case USD, EUR, GBP:
+		{
+			return true
+		}
+	default:
+		return false
+	}
+}
+
+var CurrencyValidator validator.Func = func(fl validator.FieldLevel) bool {
+	currency, ok := fl.Field().Interface().(string)
+	if ok {
+		return currencyValidator(currency)
+	}
+	return false
 }
