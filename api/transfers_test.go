@@ -3,7 +3,6 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	mockdb "github.com/silaselisha/bankapi/db/mock"
-	database "github.com/silaselisha/bankapi/db/sqlc"
+	db "github.com/silaselisha/bankapi/db/sqlc"
 	"github.com/silaselisha/bankapi/db/utils"
 	"github.com/stretchr/testify/require"
 )
@@ -22,27 +21,25 @@ func TestTransfers(t *testing.T) {
 	account2 := createRandomAcc()
 	amount := int32(20)
 
-	fmt.Println(account1, account2)
-
 	testCases := []struct {
-		name string
-		body gin.H
-		stub func(store *mockdb.MockStore)
+		name  string
+		body  gin.H
+		stub  func(store *mockdb.MockStore)
 		check func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
-			name: "Ok",
+			name: "200 ok",
 			body: gin.H{
 				"from_account_id": account1.ID,
 				"to_account_id":   account2.ID,
 				"amount":          amount,
-				"currency":         "USD",
+				"currency":        utils.USD,
 			},
 			stub: func(store *mockdb.MockStore) {
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(account2.ID)).Times(1).Return(account2, nil)
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(account1.ID)).Times(1).Return(account1, nil)
 
-				args := database.TransferTxParams{
+				args := db.TransferTxParams{
 					FromAccountId: account1.ID,
 					ToAccountId:   account2.ID,
 					Amount:        amount,
@@ -52,6 +49,24 @@ func TestTransfers(t *testing.T) {
 			},
 			check: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusCreated, recorder.Code)
+			},
+		},
+		{
+			name: "404 bad request from account",
+			body: gin.H{
+				"from_account_id": account1.ID,
+				"to_account_id":   account2.ID,
+				"amount":          amount,
+				"currency":        utils.EUR,
+			},
+			stub: func(store *mockdb.MockStore) {
+				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(account1.ID)).Times(1).Return(account1, nil)
+				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(account2.ID)).Times(0)
+
+				store.EXPECT().TransferTx(gomock.Any(), gomock.Any()).Times(0)
+			},
+			check: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
 	}
@@ -78,14 +93,14 @@ func TestTransfers(t *testing.T) {
 	}
 }
 
-func createRandomAcc() database.Account {
+func createRandomAcc() db.Account {
 	owner, _ := utils.RandomString(6)
 
-	return database.Account{
-		ID:       int64(utils.RandomAmount(1, 100)),
-		Owner:    owner,
-		Balance:  int32(utils.RandomAmount(100, 2000)),
-		Currency: "USD",
+	return db.Account{
+		ID:        int64(utils.RandomAmount(1, 100)),
+		Owner:     owner,
+		Balance:   int32(utils.RandomAmount(100, 2000)),
+		Currency:  "USD",
 		CreatedAt: time.Now(),
 	}
 }
