@@ -1,4 +1,4 @@
-package database
+package db
 
 import (
 	"context"
@@ -76,11 +76,10 @@ func TestDeleteAccountById(t *testing.T) {
 }
 
 func createRandomAccount(t *testing.T) *Account {
-	owner, err := utils.RandomString(6)
-	require.NoError(t, err)
+	user := createRandomUser(t)
 
 	args := CreateAccountParams{
-		Owner:    owner,
+		Owner:    user.Username,
 		Balance:  int32(utils.RandomAmount(100, 2000000)),
 		Currency: utils.RandomCurrency(),
 	}

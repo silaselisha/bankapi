@@ -88,17 +88,28 @@ func TestGetAccount(t *testing.T) {
 }
 
 func createRandomAccount(t *testing.T) db.Account {
-	user, err := utils.RandomString(6)
-	require.NoError(t, err)
-	require.NotEmpty(t, user)
-
+	user := createRandomUser(t)
 	return db.Account{
 		ID:       int64(utils.RandomAmount(1, 100)),
-		Owner:    user,
+		Owner:    user.Username,
 		Balance:  int32(utils.RandomAmount(100, 1000)),
 		Currency: utils.RandomCurrency(),
 	}
 }
+
+func createRandomUser(t *testing.T) *db.User {
+	username, _ := utils.RandomString(6)
+	firstName, _ := utils.RandomString(6)
+	lastName, _ := utils.RandomString(6)
+
+	return &db.User{
+		Username: username,
+		Fullname: fmt.Sprintf("%s %s", firstName, lastName),
+		Email:    fmt.Sprintf("%s%d@gmail.com", username, utils.RandomAmount(1, 100)),
+		Password: "secret",
+	}
+}
+
 
 func checkBodyResponse(t *testing.T, body *bytes.Buffer, account db.Account) {
 	data, err := io.ReadAll(body)

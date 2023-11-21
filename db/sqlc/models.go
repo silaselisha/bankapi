@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.18.0
 
-package database
+package db
 
 import (
 	"time"
@@ -29,4 +29,13 @@ type Transfer struct {
 	ToAccountID   int64     `db:"to_account_id"`
 	Amount        int32     `db:"amount"`
 	CreatedAt     time.Time `db:"created_at"`
+}
+
+type User struct {
+	Username  string    `db:"username"`
+	Fullname  string    `db:"fullname"`
+	Email     string    `db:"email"`
+	Password  string    `db:"password"`
+	CreatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
 }

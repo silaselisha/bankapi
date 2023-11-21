@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	"github.com/silaselisha/bankapi/api"
@@ -15,8 +14,6 @@ import (
 func main() {
 	var err error
 	envs, err := utils.Load(".")
-	fmt.Println(envs.Address)
-	fmt.Println(envs.DBsource)
 	if err != nil {
 		log.Fatal(err)
 	}

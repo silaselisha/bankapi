@@ -1,4 +1,4 @@
-package database
+package db
 
 import (
 	"database/sql"
@@ -20,7 +20,6 @@ func TestMain(m *testing.M) {
 		log.Fatal(err)
 	}
 	conn, err = sql.Open(envs.DBdriver, envs.DBsource)
-	// fmt.Printf("type: %T -> value: %v\n", conn, conn)
 	if err != nil {
 		log.Fatal(err)
 	}
