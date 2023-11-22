@@ -53,7 +53,6 @@ func(m *JwtMaker) VerifyToken(tok string) (*Payload, error) {
 		if ok && errors.Is(vErr.Inner, fmt.Errorf("expired token")) {
 			return nil, fmt.Errorf("expired token")
 		}
-		fmt.Println(err)
 		return nil, fmt.Errorf("invalid token")
 	}
 
