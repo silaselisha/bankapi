@@ -2,11 +2,13 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	db "github.com/silaselisha/bankapi/db/sqlc"
+	"github.com/silaselisha/bankapi/token"
 )
 
 type transferRequestParams struct {
@@ -23,8 +25,15 @@ func (s *Server) createTransfer(ctx *gin.Context) {
 		return
 	}
 
-	_, isValid := s.validateAccount(ctx, req.FromAccountId, req.Currency)
+	fromAccount, isValid := s.validateAccount(ctx, req.FromAccountId, req.Currency)
 	if !isValid {
+		return
+	}
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	if fromAccount.Owner != authPayload.Username {
+		err := errors.New("unauthorized bad request")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
 

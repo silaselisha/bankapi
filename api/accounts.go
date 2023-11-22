@@ -2,15 +2,16 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 	db "github.com/silaselisha/bankapi/db/sqlc"
+	"github.com/silaselisha/bankapi/token"
 )
 
 type createAccountsParams struct {
-	Owner    string `json:"owner" binding:"required"`
 	Currency string `json:"currency" binding:"required,currency"`
 }
 
@@ -21,8 +22,9 @@ func (s *Server) createAccounts(ctx *gin.Context) {
 		return
 	}
 
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
 	args := db.CreateAccountParams{
-		Owner:    req.Owner,
+		Owner:    authPayload.Username,
 		Currency: req.Currency,
 	}
 
@@ -39,6 +41,11 @@ func (s *Server) createAccounts(ctx *gin.Context) {
 		return
 	}
 
+	if account.Owner != authPayload.Username {
+		err := errors.New("unauthorized user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
 	ctx.JSON(http.StatusCreated, account)
 }
 
@@ -67,8 +74,9 @@ func (s *Server) getAccountById(ctx *gin.Context) {
 }
 
 type listAccountsParams struct {
-	PageId   int64 `form:"page_id" binding:"required,min=1"`
-	PageSize int64 `form:"page_size" binding:"required,min=3,max=10"`
+	Owner    string `form:"owner" binding:"required"`
+	PageId   int64  `form:"page_id" binding:"required,min=1"`
+	PageSize int64  `form:"page_size" binding:"required,min=3,max=10"`
 }
 
 func (s *Server) getAllAccounts(ctx *gin.Context) {
@@ -78,7 +86,15 @@ func (s *Server) getAllAccounts(ctx *gin.Context) {
 		return
 	}
 
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	if authPayload.Username != reqQuery.Owner {
+		err := errors.New("unauthorized request")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
 	args := db.ListAccountsParams{
+		Owner:  authPayload.Username,
 		Limit:  int32(reqQuery.PageSize),
 		Offset: (int32(reqQuery.PageId) - 1) * int32(reqQuery.PageSize),
 	}

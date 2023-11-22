@@ -31,7 +31,7 @@ func TestGetAccountById(t *testing.T) {
 func TestUpdateAccountBalance(t *testing.T) {
 	account := createRandomAccount(t)
 	args := UpdateAccountParams{
-		ID:      account.ID,
+		ID:     account.ID,
 		Amount: int32(utils.RandomAmount(10, 500)),
 	}
 
@@ -40,17 +40,19 @@ func TestUpdateAccountBalance(t *testing.T) {
 	require.NotEmpty(t, updatedAccount)
 	require.Equal(t, account.ID, updatedAccount.ID)
 	require.Equal(t, account.Owner, updatedAccount.Owner)
-	require.Equal(t, account.Balance + args.Amount, updatedAccount.Balance)
+	require.Equal(t, account.Balance+args.Amount, updatedAccount.Balance)
 	require.WithinDuration(t, account.CreatedAt, updatedAccount.CreatedAt, time.Second)
 }
 
 func TestListAccounts(t *testing.T) {
+	var lastAccount Account
 	for i := 0; i < 5; i++ {
-		createRandomAccount(t)
+		lastAccount = createRandomAccount(t)
 	}
 
 	agrs := ListAccountsParams{
-		Offset: 1,
+		Owner:  lastAccount.Owner,
+		Offset: 0,
 		Limit:  5,
 	}
 
@@ -75,7 +77,7 @@ func TestDeleteAccountById(t *testing.T) {
 	require.Equal(t, sql.ErrNoRows, err)
 }
 
-func createRandomAccount(t *testing.T) *Account {
+func createRandomAccount(t *testing.T) Account {
 	user := createRandomUser(t)
 
 	args := CreateAccountParams{
@@ -92,5 +94,5 @@ func createRandomAccount(t *testing.T) *Account {
 	require.Equal(t, args.Currency, account.Currency)
 	require.Equal(t, args.Balance, account.Balance)
 	require.WithinDuration(t, time.Now(), account.CreatedAt, time.Second*2)
-	return &account
+	return account
 }

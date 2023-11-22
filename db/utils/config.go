@@ -2,14 +2,14 @@ package utils
 
 import "github.com/spf13/viper"
 
-type envs struct {
+type Envs struct {
 	DBsource      string `mapstructure:"DB_SOURCE"`
 	DBdriver      string `mapstructure:"DB_DRIVER"`
 	Address       string `mapstructure:"SERVER_ADDRESS"`
 	JwtSecreteKey string `mapstructure:"JWT_SECRETE_KEY"`
 }
 
-func Load(path string) (*envs, error) {
+func Load(path string) (*Envs, error) {
 	viper.AddConfigPath(path)
 	viper.SetConfigType("env")
 	viper.SetConfigFile(".env")
@@ -20,7 +20,7 @@ func Load(path string) (*envs, error) {
 		return nil, err
 	}
 
-	var envs *envs
+	var envs *Envs
 	if err := viper.Unmarshal(&envs); err != nil {
 		return nil, err
 	}

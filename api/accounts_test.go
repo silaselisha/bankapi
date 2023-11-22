@@ -15,20 +15,25 @@ import (
 	mockdb "github.com/silaselisha/bankapi/db/mock"
 	db "github.com/silaselisha/bankapi/db/sqlc"
 	"github.com/silaselisha/bankapi/db/utils"
+	"github.com/silaselisha/bankapi/token"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGetAccount(t *testing.T) {
 	account := createRandomAccount(t)
 	testCases := []struct {
-		name  string
-		id    int64
-		stub  func(store *mockdb.MockStore)
-		check func(t *testing.T, recorder *httptest.ResponseRecorder)
+		name    string
+		id      int64
+		stub    func(store *mockdb.MockStore)
+		setAuth func(t *testing.T, request *http.Request, tokenMaker token.Maker)
+		check   func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
 			name: "Ok",
 			id:   account.ID,
+			setAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, AuthorizationType, account.Owner, 30*time.Minute)
+			},
 			stub: func(store *mockdb.MockStore) {
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(account.ID)).Times(1).Return(account, nil)
 			},
@@ -40,6 +45,9 @@ func TestGetAccount(t *testing.T) {
 		{
 			name: "Not found",
 			id:   account.ID,
+			setAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, AuthorizationType, account.Owner, 30*time.Minute)
+			},
 			stub: func(store *mockdb.MockStore) {
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(account.ID)).Times(1).Return(db.Account{}, sql.ErrNoRows)
 			},
@@ -50,6 +58,9 @@ func TestGetAccount(t *testing.T) {
 		{
 			name: "Internal server error",
 			id:   account.ID,
+			setAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, AuthorizationType, account.Owner, 30*time.Minute)
+			},
 			stub: func(store *mockdb.MockStore) {
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(account.ID)).Times(1).Return(db.Account{}, sql.ErrConnDone)
 			},
@@ -60,6 +71,9 @@ func TestGetAccount(t *testing.T) {
 		{
 			name: "Invalid request",
 			id:   0,
+			setAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
+				addAuthorization(t, request, tokenMaker, AuthorizationType, account.Owner, 2*time.Minute)
+			},
 			stub: func(store *mockdb.MockStore) {
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Any()).Times(0)
 			},
@@ -82,7 +96,13 @@ func TestGetAccount(t *testing.T) {
 			url := fmt.Sprintf("/accounts/%d", tsc.id)
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
+			key := "1b0b437eda7320d9d965bffa555a6fab157f964da08ae39198bf99875c352b4d"
+			tokenMaker, err := token.NewJwtMaker(key)
+
+			tsc.setAuth(t, request, tokenMaker)
+			fmt.Println(request.Header)
 			server.router.ServeHTTP(recoder, request)
+			require.NoError(t, err)
 			tsc.check(t, recoder)
 		})
 	}
@@ -107,14 +127,13 @@ func createRandomUser(t *testing.T) (db.User, string) {
 
 	require.NoError(t, err)
 	return db.User{
-		Username: username,
-		Fullname: fmt.Sprintf("%s %s", firstName, lastName),
-		Email:    fmt.Sprintf("%s%d@gmail.com", username, utils.RandomAmount(1, 100)),
-		Password: hashedPassword,
+		Username:  username,
+		Fullname:  fmt.Sprintf("%s %s", firstName, lastName),
+		Email:     fmt.Sprintf("%s%d@gmail.com", username, utils.RandomAmount(1, 100)),
+		Password:  hashedPassword,
 		CreatedAt: time.Now(),
 	}, password
 }
-
 
 func checkBodyResponse(t *testing.T, body *bytes.Buffer, account db.Account) {
 	data, err := io.ReadAll(body)
@@ -123,4 +142,19 @@ func checkBodyResponse(t *testing.T, body *bytes.Buffer, account db.Account) {
 	err = json.Unmarshal(data, &res)
 	require.NoError(t, err)
 	require.Equal(t, account, res)
+}
+
+func addAuthorization(
+	t *testing.T,
+	request *http.Request,
+	tokenMaker token.Maker,
+	authorizationType string,
+	username string,
+	duration time.Duration,
+) {
+	token, err := tokenMaker.CreateToken(username, duration)
+	require.NoError(t, err)
+
+	authorizationHeader := fmt.Sprintf("%s %s", authorizationType, token)
+	request.Header.Set(AuthorizationHeaderKey, authorizationHeader)
 }

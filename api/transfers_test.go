@@ -13,6 +13,7 @@ import (
 	mockdb "github.com/silaselisha/bankapi/db/mock"
 	db "github.com/silaselisha/bankapi/db/sqlc"
 	"github.com/silaselisha/bankapi/db/utils"
+	"github.com/silaselisha/bankapi/token"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,6 +25,7 @@ func TestTransfers(t *testing.T) {
 	testCases := []struct {
 		name  string
 		body  gin.H
+		setAuth func(t *testing.T, request *http.Request, maker token.Maker)
 		stub  func(store *mockdb.MockStore)
 		check func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
@@ -34,6 +36,9 @@ func TestTransfers(t *testing.T) {
 				"to_account_id":   account2.ID,
 				"amount":          amount,
 				"currency":        utils.USD,
+			},
+			setAuth: func(t *testing.T, request *http.Request, maker token.Maker) {
+				addAuthorization(t, request, maker, AuthorizationType, account1.Owner, 30 * time.Minute)
 			},
 			stub: func(store *mockdb.MockStore) {
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(account2.ID)).Times(1).Return(account2, nil)
@@ -58,6 +63,9 @@ func TestTransfers(t *testing.T) {
 				"to_account_id":   account2.ID,
 				"amount":          amount,
 				"currency":        utils.EUR,
+			},
+			setAuth: func(t *testing.T, request *http.Request, maker token.Maker) {
+				addAuthorization(t, request, maker, AuthorizationType, account1.Owner, 30 * time.Minute)
 			},
 			stub: func(store *mockdb.MockStore) {
 				store.EXPECT().GetAccount(gomock.Any(), gomock.Eq(account1.ID)).Times(1).Return(account1, nil)
@@ -88,6 +96,11 @@ func TestTransfers(t *testing.T) {
 			require.NoError(t, err)
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
+
+			key := "1b0b437eda7320d9d965bffa555a6fab157f964da08ae39198bf99875c352b4d"
+			maker, err := token.NewJwtMaker(key)
+			require.NoError(t, err)
+			tsc.setAuth(t, request, maker)
 			server.router.ServeHTTP(recorder, request)
 		})
 	}

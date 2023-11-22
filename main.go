@@ -11,6 +11,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
+
 func main() {
 	var err error
 	envs, err := utils.Load(".")
