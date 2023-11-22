@@ -1,9 +1,12 @@
 package utils
 
 import (
+	"fmt"
 	"math/rand"
 	"strings"
+
 	"github.com/go-playground/validator/v10"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var letters string = "abcdefghijklmnopqrstuvwxyz"
@@ -52,4 +55,16 @@ var CurrencyValidator validator.Func = func(fl validator.FieldLevel) bool {
 		return currencyValidator(currency)
 	}
 	return false
+}
+
+func GenerateHashedPassword(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", fmt.Errorf("password hashing failed %w", err)
+	}
+	return string(hashedPassword), nil
+}
+
+func ComparePassword(hashedPassword, password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }

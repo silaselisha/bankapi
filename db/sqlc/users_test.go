@@ -32,12 +32,15 @@ func createRandomUser(t *testing.T) *User {
 	username, _ := utils.RandomString(6)
 	firstName, _ := utils.RandomString(6)
 	lastName, _ := utils.RandomString(6)
+	password, _ := utils.RandomString(8)
 
+	hashedPassword, err := utils.GenerateHashedPassword(password)
+	require.NoError(t, err)
 	args := CreateUserParams{
 		Username: username,
 		Fullname: fmt.Sprintf("%s %s", firstName, lastName),
 		Email:    fmt.Sprintf("%s%d@gmail.com", username, utils.RandomAmount(1, 100)),
-		Password: "secret",
+		Password: hashedPassword,
 	}
 
 	user, err := testQueries.CreateUser(context.Background(), CreateUserParams{

@@ -3,9 +3,10 @@ package utils
 import "github.com/spf13/viper"
 
 type envs struct {
-	DBsource string `mapstructure:"DB_SOURCE"`
-	DBdriver string `mapstructure:"DB_DRIVER"`
-	Address  string `mapstructure:"SERVER_ADDRESS"`
+	DBsource      string `mapstructure:"DB_SOURCE"`
+	DBdriver      string `mapstructure:"DB_DRIVER"`
+	Address       string `mapstructure:"SERVER_ADDRESS"`
+	JwtSecreteKey string `mapstructure:"JWT_SECRETE_KEY"`
 }
 
 func Load(path string) (*envs, error) {

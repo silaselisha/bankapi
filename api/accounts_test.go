@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	mockdb "github.com/silaselisha/bankapi/db/mock"
@@ -88,7 +89,7 @@ func TestGetAccount(t *testing.T) {
 }
 
 func createRandomAccount(t *testing.T) db.Account {
-	user := createRandomUser(t)
+	user, _ := createRandomUser(t)
 	return db.Account{
 		ID:       int64(utils.RandomAmount(1, 100)),
 		Owner:    user.Username,
@@ -97,17 +98,21 @@ func createRandomAccount(t *testing.T) db.Account {
 	}
 }
 
-func createRandomUser(t *testing.T) *db.User {
+func createRandomUser(t *testing.T) (db.User, string) {
 	username, _ := utils.RandomString(6)
 	firstName, _ := utils.RandomString(6)
 	lastName, _ := utils.RandomString(6)
+	password, _ := utils.RandomString(8)
+	hashedPassword, err := utils.GenerateHashedPassword(password)
 
-	return &db.User{
+	require.NoError(t, err)
+	return db.User{
 		Username: username,
 		Fullname: fmt.Sprintf("%s %s", firstName, lastName),
 		Email:    fmt.Sprintf("%s%d@gmail.com", username, utils.RandomAmount(1, 100)),
-		Password: "secret",
-	}
+		Password: hashedPassword,
+		CreatedAt: time.Now(),
+	}, password
 }
 
 
