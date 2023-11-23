@@ -1,9 +1,5 @@
 name: test
-on:
-  push:
-    branches:
-      - main
-      - 'features/**'
+on: [push]
 jobs:
   test:
     runs-on: ubuntu-latest
