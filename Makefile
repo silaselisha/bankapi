@@ -14,10 +14,10 @@ dropdb:
 	docker exec -it postgres16 dropdb bankapi
 
 migrateup:
-	migrate -path db/migrations -database "postgres://root:esilas@postgres.c0yazamau9ss.us-east-1.rds.amazonaws.com:5432/bankapi?sslmode=enable" -verbose up
+	migrate -path db/migrations -database "postgres://root:esilas@postgres.c0yazamau9ss.us-east-1.rds.amazonaws.com:5432/bankapi" -verbose up
 
 migratedown:
-	migrate -path db/migrations -database "postgres://root:esilas@postgres.c0yazamau9ss.us-east-1.rds.amazonaws.com:5432/bankapi?sslmode=enable" -verbose down
+	migrate -path db/migrations -database "postgres://root:esilas@postgres.c0yazamau9ss.us-east-1.rds.amazonaws.com:5432/bankapi" -verbose down
 
 gotest:
 	go test -v -cover ./...
