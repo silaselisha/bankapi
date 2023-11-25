@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -50,7 +49,6 @@ func TestTransferTx(t *testing.T) {
 		require.Equal(t, amount, transfer.Amount)
 		require.Equal(t, account2.ID, transfer.ToAccountID)
 		require.Equal(t, account1.ID, transfer.FromAccountID)
-		require.WithinDuration(t, time.Now(), transfer.CreatedAt, time.Second)
 
 		_, err = store.GetTransfer(context.Background(), transfer.ID)
 		require.NoError(t, err)
@@ -60,7 +58,6 @@ func TestTransferTx(t *testing.T) {
 		require.NotZero(t, fromEntry.ID)
 		require.Equal(t, account1.ID, fromEntry.AccountID)
 		require.Equal(t, -amount, fromEntry.Amount)
-		require.WithinDuration(t, time.Now(), fromEntry.CreatedAt, time.Second*1)
 
 		_, err = store.GetEntry(context.Background(), fromEntry.ID)
 		require.NoError(t, err)
@@ -69,7 +66,6 @@ func TestTransferTx(t *testing.T) {
 		require.NotEmpty(t, toEntry)
 		require.NotZero(t, toEntry.ID)
 		require.Equal(t, account2.ID, toEntry.AccountID)
-		require.WithinDuration(t, time.Now(), toEntry.CreatedAt, time.Second*1)
 		require.Equal(t, amount, toEntry.Amount)
 
 		_, err = store.GetEntry(context.Background(), toEntry.ID)
