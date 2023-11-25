@@ -2,7 +2,7 @@
 set -e 
 
 echo "run database migration"
-source .env
+source /app/app.env
 echo "$DB_SOURCE"
 
 /usr/bin/migrate -path /app/db/migrations -database "$DB_SOURCE" -verbose up
