@@ -97,7 +97,7 @@ func TestTransfers(t *testing.T) {
 			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(data))
 			require.NoError(t, err)
 
-			key := "1b0b437eda7320d9d965bffa555a6fab157f964da08ae39198bf99875c352b4d"
+			key := "53d36d97c0dbbec983acdf2ae98746d7"
 			maker, err := token.NewJwtMaker(key)
 			require.NoError(t, err)
 			tsc.setAuth(t, request, maker)

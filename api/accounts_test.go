@@ -96,7 +96,7 @@ func TestGetAccount(t *testing.T) {
 			url := fmt.Sprintf("/accounts/%d", tsc.id)
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
-			key := "1b0b437eda7320d9d965bffa555a6fab157f964da08ae39198bf99875c352b4d"
+			key := "53d36d97c0dbbec983acdf2ae98746d7"
 			tokenMaker, err := token.NewJwtMaker(key)
 
 			tsc.setAuth(t, request, tokenMaker)
